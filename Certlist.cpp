@@ -147,7 +147,7 @@ void CertList::createCert(QString name)
     cert.setRootCA(caFile);
 
     cert.genCert (name);
-    loadCerts(path);
+    loadCerts(path + QDir::separator() + caFile);
 }
 
 void CertList::createCA(QString uri)

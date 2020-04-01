@@ -42,8 +42,8 @@ if(ANDROID)
 else()
   add_executable(opensslRootCA
     main.cpp
-    #    mainwindow.cpp
-    #    mainwindow.h
+    mainwindow.cpp
+    mainwindow.h
     Cert.cc
     Cert.h
     Crt.cc

@@ -17,10 +17,10 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    CertList *certs = qobject_cast<CertList *>(CertList::init());
+//    CertList *certs = qobject_cast<CertList *>(CertList::init());
 //    certs->loadCerts("/home/android/cert.2/rootCA.crt");
-    certs->loadCerts("/tmp/22/rootCA.crt");
-    qInfo() << certs->rowCount();
+//    certs->loadCerts("/tmp/22/rootCA.crt");
+//    qInfo() << certs->rowCount();
 
 //    MainWindow w;
 //    w.show();
