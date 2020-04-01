@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>root.qml</file>
+        <file>Header.qml</file>
+        <file>NewCert.qml</file>
+        <file>CreateCA.qml</file>
+    </qresource>
+</RCC>
