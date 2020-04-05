@@ -29,8 +29,6 @@ find_package(Qt5 COMPONENTS Widgets Quick REQUIRED)
 if(ANDROID)
   add_library(opensslRootCA SHARED
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
     Cert.cc
     Cert.h
     Crt.cc
@@ -42,8 +40,6 @@ if(ANDROID)
 else()
   add_executable(opensslRootCA
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
     Cert.cc
     Cert.h
     Crt.cc

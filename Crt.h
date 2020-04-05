@@ -19,6 +19,7 @@ class Crt {
         static QString withoutExtension(const QString & fileName);
         static QString withoutPath(const QString & fileName);
         static QString getPath(const QString & fileName);
+        static QString getSubj(const QString & fileName);
 
         void info();
 
@@ -28,7 +29,6 @@ class Crt {
         QString crtFile,
                 keyFile,
                 csrFile;
-
 };
 
 #endif // CRT_H

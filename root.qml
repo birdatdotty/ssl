@@ -28,7 +28,6 @@ ApplicationWindow {
 
         RowLayout {
             Text {
-                id: name1
                 text: "Список сертификатов"
             }
         }

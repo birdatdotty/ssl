@@ -1,6 +1,8 @@
 #ifndef CERT_H
 #define CERT_H
 
+// https://www.shellhacks.com/ru/create-csr-openssl-without-prompt-non-interactive/
+
 #include <QObject>
 
 class Cert : public QObject
@@ -15,17 +17,20 @@ public:
     void genRootCA(QString rootCA);
     void genCert(QString cn);
 
+    static QString getSubj(const QString fileName);
+    static QString normalizeSubj(QString subj);
+
 private:
     QString m_path;
+    QString m_rootCA;
+    QString m_rootKey;
+    QString m_subj;
+
     QString RootCA;
     QString RootKey;
 
     int rootDays, certDays;
     int rsa;
-    QString m_rootCA;
-    QString m_subj;
-
-signals:
 
 };
 

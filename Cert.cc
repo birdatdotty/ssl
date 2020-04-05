@@ -1,11 +1,15 @@
 #include "Cert.h"
+#include "Crt.h"
 
 #include <QDir>
+#include <QDebug>
+
 
 // https://stackoverflow.com/questions/16842768/passing-csr-distinguished-name-fields-as-parameters-to-openssl
 // https://www.leaderssl.ru/articles/207-vse-pro-openssl-za-5-minut
 
 static bool deleteIfExist(QString fileName) {
+    qInfo() << "static bool deleteIfExist(QString fileName)";
     QFile file (fileName);
     if (file.exists())
         return file.remove();
@@ -15,6 +19,7 @@ static bool deleteIfExist(QString fileName) {
 
 
 Cert::Cert(QObject *parent) : QObject(parent) {
+    qInfo() << "Cert::Cert(QObject *parent) : QObject(parent)";
     rootDays = 10000;
     certDays = 5000;
 
@@ -23,20 +28,26 @@ Cert::Cert(QObject *parent) : QObject(parent) {
 }
 
 void Cert::setPath(QString path) {
+    qInfo() << "void Cert::setPath(QString path)";
     m_path = path;
 }
 
 void Cert::setSubj(QString subj)
 {
-    m_subj = subj;
+    qInfo() << "void Cert::setSubj(QString subj)";
+    m_subj = normalizeSubj(subj);
 }
 
 void Cert::setRootCA(QString rootCA)
 {
-    m_rootCA = m_path + QDir::separator() + rootCA;
+    qInfo() << "void Cert::setRootCA(QString rootCA)";
+    m_rootCA = rootCA;
+    m_path = Crt::getPath( rootCA );
+    m_rootKey = m_path + Crt::getName(rootCA) + ".key";
 }
-#include <QDebug>
+
 void Cert::genRootCA(QString rootCA) {
+    qInfo() << "void Cert::genRootCA(QString rootCA)";
     m_rootCA = m_path + QDir::separator() + rootCA;
     QString fileName = m_path + QDir::separator() + rootCA;
 
@@ -53,9 +64,10 @@ void Cert::genRootCA(QString rootCA) {
 
 void Cert::genCert(QString cn)
 {
+    qInfo() << "void Cert::genCert(QString cn)";
     QString fileName = m_path + QDir::separator() + cn;
-    QString rootCA = m_rootCA + ".crt";
-    QString rootKey = m_rootCA + ".key";
+    QString rootCA = m_rootCA;
+    QString rootKey = m_rootKey;
 
     QString key = fileName + ".key";
     QString csr = fileName + ".csr";
@@ -83,5 +95,22 @@ void Cert::genCert(QString cn)
           " -CAkey " + rootKey + " -CAcreateserial -out " +
           crt + " -days " + QString::number(certDays);
     qInfo() << "cmd:" << cmd;
+
     system(cmd.toUtf8());
+}
+
+QString Cert::normalizeSubj(QString subj) {
+    qInfo() << "QString Cert::normalizeSubj(QString subj)";
+    QString n = subj.mid(subj.indexOf('=') + 1);
+    QStringList sList = n.split(',');
+
+    QString newN;
+    for (QString piece: sList)
+    {
+        QStringList subPieces = piece.split("=");
+        if (subPieces.size() > 1 )
+            newN += "/" + subPieces[0].trimmed() + "=" + subPieces[1].trimmed();
+    }
+
+    return newN;
 }

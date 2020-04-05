@@ -3,6 +3,8 @@
 #include <QJSValue>
 #include <QQmlEngine>
 
+#include <QSettings>
+
 #include <QDebug>
 
 
@@ -12,30 +14,19 @@
 CertList::CertList(QObject *parent)
     : QAbstractListModel(parent)
 {
-    QStringList crtList, keyList, csrList;
-    crtList << "/home/android/cert/rootCA.crt" << "rootCA2.crt" << "server101.mycloud.crt";
-    keyList << "rootCA.key" << "server101.mycloud.key";
-    csrList << "rootCA.csr" << "server101.mycloud.csr";
+//    QSettings settings( "openSslRootCA.conf", QSettings::IniFormat, this );
+    qInfo() << "CertList::CertList(QObject *parent)";
+    QSettings settings( this );
 
-    qInfo() << __LINE__ << "crtList:" << crtList;
-    for (QString crtFile: crtList) {
-        QString name = Crt::getName(crtFile);
-        Crt* crt = new Crt(crtFile);
+    settings.beginGroup( "main" );
+    QVariant certPath = settings.value("cert" );
+    settings.endGroup();
 
-        for (QString key: keyList)
-        if (Crt::getName(key) == name) {
-            crt->insertKey(key);
-            break;
-        }
 
-        for (QString csr: csrList)
-        if (Crt::getName(csr) == name) {
-            crt->insertCsr(csr);
-            break;
-        }
+    qInfo() << __LINE__ << certPath;
+    if (certPath.isValid())
+        loadCertsPath(certPath.toString());
 
-        list.append(crt);
-    }
 }
 
 QVariant CertList::headerData(int section, Qt::Orientation orientation, int role) const
@@ -73,6 +64,7 @@ QVariant CertList::data(const QModelIndex &index, int role) const
 
 QObject *CertList::init(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
+    qInfo() << "QObject *CertList::init(QQmlEngine *engine, QJSEngine *scriptEngine)";
     Q_UNUSED(engine)
     Q_UNUSED(scriptEngine)
 
@@ -80,6 +72,7 @@ QObject *CertList::init(QQmlEngine *engine, QJSEngine *scriptEngine)
 }
 
 QObject* CertList::init() {
+    qInfo() << "QObject* CertList::init()";
     static CertList* obj = new CertList();
 
     return obj;
@@ -91,13 +84,72 @@ QObject* CertList::init() {
 
 void CertList::loadCerts(QString uri)
 {
-    caFile = QFileInfo(uri).fileName();
-    caFile = Crt::getName(caFile);
+    qInfo() << __LINE__ << "void CertList::loadCerts(QString uri)" << uri;
     QString path = QUrl(uri).path();
+
+    loadCertsPath(path);
+}
+
+void CertList::createCert(QString name)
+{
+    qInfo() << "void CertList::createCert(QString name):" << name;
+    Cert cert;
+    qInfo() << __LINE__ << "path:" << path;
+    cert.setPath(path);
+//    cert.setSubj(subj);
+    cert.setSubj(subj);
+//    cert.setRootCA("rootCA");
+    cert.setRootCA(caFile);
+
+    cert.genCert (name);
+    loadCerts(caFile);
+}
+
+void CertList::createCA(QString uri, QString subject)
+{
+//    qInfo() << "void CertList::createCA(QString uri):" << uri;
+//    QString path = QFileInfo(uri).path();
+//            path = QUrl(path).path();
+//    QString file = QFileInfo(uri).fileName();
+
+
+//    loadCerts(uri);
+//    qInfo() << "uri:" << uri;
+    QString path = QFileInfo(uri).path();
+    path = QUrl(path).path();
+    QString file = QFileInfo(uri).fileName();
+
+    Cert cert;
+    cert.setPath(path);
+    cert.setSubj(subject);
+    cert.genRootCA(Crt::getName(file));
+
+    loadCerts(uri);
+
+}
+
+void CertList::setPath(QString newPath) {
+    qInfo() << "void CertList::setPath(QString newPath)";
+    path = Crt::getPath(newPath);
+    sigPath(path);
+}
+
+void CertList::loadCertsPath(QString path)
+{
+    qInfo() << "void CertList::loadCertsPath(QString path):" << path;
+    caFile = path;
+    caKey = Crt::getPath(caFile) + Crt::getName(caFile) + ".key";
+
+    qInfo() << "caFile:" << caFile;
+    qInfo() << "caKey:" << caKey;
+
+    saveCertsPath(path);
+    Cert cert;
+    cert.setPath(path);
+    subj = Cert::normalizeSubj( Crt::getSubj(path) );
+
     QFileInfo ca (path);
-    qInfo() << "info:" << ca.path();
     QString curDir = ca.path();
-    qInfo() << "curDir:" << curDir;
     QDir sDir(curDir);
 
     QStringList files = sDir.entryList(QDir::AllEntries|QDir::NoDotAndDotDot);
@@ -136,51 +188,18 @@ void CertList::loadCerts(QString uri)
 
 }
 
-void CertList::createCert(QString name)
+void CertList::saveCertsPath(QString path)
 {
-    qInfo() << "void CertList::createCert(" + name + ")";
-    Cert cert;
-    qInfo() << __LINE__ << "path:" << path;
-    cert.setPath(path);
-    cert.setSubj("/C=RU/O=DottySU");
-//    cert.setRootCA("rootCA");
-    cert.setRootCA(caFile);
+    qInfo() << "void CertList::saveCertsPath(QString path)" << path;
+    QSettings settings( this );
+    settings.beginGroup( "main" );
+    settings.setValue( "cert", path );
+    settings.endGroup();
 
-    cert.genCert (name);
-    loadCerts(path + QDir::separator() + caFile);
-}
-
-void CertList::createCA(QString uri)
-{
-    qInfo() << "uri:" << uri;
-    QString path = QFileInfo(uri).path();
-            path = QUrl(path).path();
-    QString file = QFileInfo(uri).fileName();
-    qInfo() << "file" << file;
-    qInfo() << "ddd" << QFileInfo(uri).path();
-    qInfo() << "ddd" << QFileInfo(uri).fileName();
-//    QString path = QUrl(uri).path();
-    qInfo() << "path:" << path;
-//    cert.setPath("/home/android/cert");
-//    cert.setSubj("/C=RU/O=DottySU");
-//    cert.genRootCA("rootCA");
-
-    Cert cert;
-    cert.setPath(path);
-    cert.setSubj("/C=RU/O=DottySU");
-    cert.genRootCA(Crt::getName(file));
-
-    loadCerts(uri);
-}
-
-void CertList::setPath(QString newPath) {
-    path = Crt::getPath(newPath);
-    qInfo() << "sigPath(" + newPath + ")";
-    qInfo() << "sigPath(" + path + ")";
-    sigPath(path);
-    qInfo() << "sigPath(" + path + ")";
+    settings.sync();
 }
 
 QString CertList::getPath() {
+    qInfo() << "QString CertList::getPath()";
     return path;
 }

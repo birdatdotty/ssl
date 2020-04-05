@@ -1,4 +1,5 @@
 #include <QDir>
+#include <QProcess>
 
 #include "Crt.h"
 
@@ -21,13 +22,21 @@ QString Crt::getName() const {
     return name;
 }
 
-QString Crt::getPath() const {return path;}
+QString Crt::getPath() const {
+    return path;
+}
 
-QString Crt::getCrt() const {return crtFile;}
+QString Crt::getCrt() const {
+    return crtFile;
+}
 
-QString Crt::getKey() const {return keyFile;}
+QString Crt::getKey() const {
+    return keyFile;
+}
 
-QString Crt::getCsr() const {return csrFile;}
+QString Crt::getCsr() const {
+    return csrFile;
+}
 
 QString Crt::getName(QString path) {
     return withoutPath(withoutExtension(path));
@@ -47,6 +56,15 @@ QString Crt::getPath(const QString &fileName) {
         tmpPath = QDir::currentPath() + QDir::separator() + tmpPath;
 
     return tmpPath + QDir::separator();
+}
+
+QString Crt::getSubj(const QString &fileName)
+{
+    QProcess proc;
+    proc.start("openssl", QStringList() << "x509" << "-subject" << "-noout" << "-in" << fileName);
+    proc.waitForFinished(-1);
+    QString output(proc.readAllStandardOutput());
+    return output;
 }
 
 #include <QDebug>

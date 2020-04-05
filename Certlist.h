@@ -43,16 +43,20 @@ public:
 public slots:
     Q_INVOKABLE void loadCerts(QString uri);
     Q_INVOKABLE void createCert(QString name);
-    Q_INVOKABLE void createCA(QString uri);
+    Q_INVOKABLE void createCA(QString uri, QString subject);
 
 private:
     QString path;
-    QString caFile;
+    QString caFile, caKey;
+    QString subj;
     QStringList files;
     QStringList fullFiles;
     QList<Crt*> list;
 
     void setPath(QString newPath);
+    void loadCertsPath(QString path);
+    void saveCertsPath(QString path);
+
     QString getPath();
 signals:
     void sigPath(QString path);

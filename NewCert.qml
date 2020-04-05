@@ -1,7 +1,10 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.12
+
+import Qt.labs.platform 1.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.12
+import QtQuick.Controls 2.12
 
 import Cert 1.0
 
@@ -39,11 +42,11 @@ Dialog {
 
 
     contentItem: Rectangle {
-        implicitWidth: 400
+        implicitWidth: 600
         implicitHeight: 100
 
         GridLayout {
-            rows: 2
+            rows: 1
             columns: 3
             anchors.fill: parent
             TextField {
@@ -56,25 +59,26 @@ Dialog {
                 horizontalAlignment: Text.AlignLeft
                 placeholderText: "Введите имя устройств (host.domain.local)"
             }
-            Button {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.rowSpan: 1
-                Layout.columnSpan: 2
+//            Button {
+//                Layout.fillWidth: true
+//                Layout.fillHeight: true
+//                Layout.rowSpan: 1
+//                Layout.columnSpan: 2
 
-                text: "Создать"
-                onReleased: root.start()
-            }
-            Button {
-                Layout.fillHeight: true
-                Layout.rowSpan: 1
-                Layout.columnSpan: 1
+//                text: "Создать"
+//                onReleased: root.start()
+//            }
+//            Button {
+//                Layout.fillHeight: true
+//                Layout.rowSpan: 1
+//                Layout.columnSpan: 1
 
-                text: "Отменить"
-                onReleased: root.end()
-            }
+//                text: "Отменить"
+//                onReleased: root.end()
+//            }
 
         }
 
     }
+    onAccepted: root.start()
 }

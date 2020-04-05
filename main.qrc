@@ -4,5 +4,6 @@
         <file>Header.qml</file>
         <file>NewCert.qml</file>
         <file>CreateCA.qml</file>
+        <file>SaveCAFile.qml</file>
     </qresource>
 </RCC>
