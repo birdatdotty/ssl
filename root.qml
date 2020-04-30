@@ -19,6 +19,7 @@ ApplicationWindow {
     CreateCA {
         onAccepted: visible = false
         id: createCA
+        width: root1.width
     }
 
     header:  Header{}
@@ -47,10 +48,6 @@ ApplicationWindow {
         }
 
 
-    }
-    onBeforeRendering: {
-//        msg.visible = true
-//        msg.open();
     }
     footer: RowLayout {
         Button {

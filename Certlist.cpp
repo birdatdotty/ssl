@@ -107,6 +107,10 @@ void CertList::createCert(QString name)
 
 void CertList::createCA(QString uri, QString subject)
 {
+    if (uri.size() == 0 || subject.size() == 0) {
+        qInfo() << "if (uri.size() == 0 || subject.size() == 0)";
+        return;
+    }
 //    qInfo() << "void CertList::createCA(QString uri):" << uri;
 //    QString path = QFileInfo(uri).path();
 //            path = QUrl(path).path();
@@ -114,7 +118,7 @@ void CertList::createCA(QString uri, QString subject)
 
 
 //    loadCerts(uri);
-//    qInfo() << "uri:" << uri;
+
     QString path = QFileInfo(uri).path();
     path = QUrl(path).path();
     QString file = QFileInfo(uri).fileName();
@@ -123,6 +127,9 @@ void CertList::createCA(QString uri, QString subject)
     cert.setPath(path);
     cert.setSubj(subject);
     cert.genRootCA(Crt::getName(file));
+
+    qInfo() << __LINE__ << "uri:" << uri;
+    qInfo() << __LINE__ << "subj:" << subject;
 
     loadCerts(uri);
 
@@ -146,7 +153,7 @@ void CertList::loadCertsPath(QString path)
     saveCertsPath(path);
     Cert cert;
     cert.setPath(path);
-    subj = Cert::normalizeSubj( Crt::getSubj(path) );
+    subj = Cert::normalizeSubj( Crt::getSubj(path), QStringList() << "CN" );
 
     QFileInfo ca (path);
     QString curDir = ca.path();

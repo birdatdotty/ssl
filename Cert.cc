@@ -35,7 +35,8 @@ void Cert::setPath(QString path) {
 void Cert::setSubj(QString subj)
 {
     qInfo() << "void Cert::setSubj(QString subj)";
-    m_subj = normalizeSubj(subj);
+//    m_subj = normalizeSubj(subj);
+    m_subj = subj;
 }
 
 void Cert::setRootCA(QString rootCA)
@@ -51,6 +52,9 @@ void Cert::genRootCA(QString rootCA) {
     m_rootCA = m_path + QDir::separator() + rootCA;
     QString fileName = m_path + QDir::separator() + rootCA;
 
+    qInfo() << __LINE__ << "m_rootCA:" << m_rootCA;
+    qInfo() << __LINE__ << "m_subj:" << m_subj;
+
     // delete old files
     deleteIfExist(fileName + ".key");
     deleteIfExist(fileName + ".crt");
@@ -59,6 +63,8 @@ void Cert::genRootCA(QString rootCA) {
     cmd += "openssl req -x509 -sha256 -newkey rsa:2048 -keyout " +  fileName + ".key "
            "-out " + fileName + ".crt -days " + QString::number(rootDays) +
            " -nodes -subj '" + m_subj + "'";
+    qInfo() << "m_subj:" << m_subj;
+    qInfo() << "genRootCA:" << cmd;
     system(cmd.toUtf8());
 }
 
@@ -99,17 +105,26 @@ void Cert::genCert(QString cn)
     system(cmd.toUtf8());
 }
 
-QString Cert::normalizeSubj(QString subj) {
+QString Cert::normalizeSubj(QString subj, QStringList excludes) {
     qInfo() << "QString Cert::normalizeSubj(QString subj)";
     QString n = subj.mid(subj.indexOf('=') + 1);
     QStringList sList = n.split(',');
 
     QString newN;
+    qInfo() << __LINE__ << "subj:" << subj;
+    qInfo() << __LINE__ << "sList:" << sList;
     for (QString piece: sList)
     {
         QStringList subPieces = piece.split("=");
-        if (subPieces.size() > 1 )
+        if (subPieces.size() > 1 ) {
+            if (excludes.contains(subPieces[0].trimmed()))
+                continue;
+//            if (subPieces[0].trimmed() == "CN")
+//                continue;
+            qInfo() << __LINE__ << "subPieces:" << subPieces;
             newN += "/" + subPieces[0].trimmed() + "=" + subPieces[1].trimmed();
+            qInfo() << __LINE__ << "newN:" << newN;
+        }
     }
 
     return newN;

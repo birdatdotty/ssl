@@ -18,7 +18,7 @@ public:
     void genCert(QString cn);
 
     static QString getSubj(const QString fileName);
-    static QString normalizeSubj(QString subj);
+    static QString normalizeSubj(QString subj, QStringList excludes = QStringList());
 
 private:
     QString m_path;

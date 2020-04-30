@@ -27,10 +27,12 @@ Dialog {
     }
 
     contentItem: Rectangle {
-        implicitWidth: 600
-        implicitHeight: 100
+        width: root.width
+//        implicitWidth: 600
+//        implicitHeight: 100
 
         GridLayout {
+            width: root.width
             Text {
                 Layout.rowSpan: 1
                 Layout.columnSpan: 1
@@ -69,13 +71,18 @@ Dialog {
                 Layout.columnSpan: 2
 
                 horizontalAlignment: Text.AlignLeft
-                placeholderText: "/C=RU/O=Any Department/emailAddress=root@example.com"
+                placeholderText: "/C=RU/CN=Root CA/emailAddress=root@example.com"
             }
 
         }
     }
 
-    onAccepted: CertList.createCA(pathField.text, subjectField.text)
+
+
+    onAccepted: {
+        console.log("pathField.text, subjectField.text:", pathField.text, subjectField.text)
+        CertList.createCA(pathField.text, subjectField.text);
+    }
 //    onRejected: console.log("Cancel clicked")
 }
 
